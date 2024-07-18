@@ -7,10 +7,13 @@ use console::Term;
 use fs4::FileExt;
 use ocl::{Buffer, Context, Device, MemFlags, Platform, ProQue, Program, Queue};
 use rand::{thread_rng, Rng};
+use reqwest::blocking::Client;
 use separator::Separatable;
+use serde::Serialize;
 use std::fmt::Write as _;
 use std::fs::{File, OpenOptions};
 use std::io::prelude::*;
+use std::thread;
 use std::time::{SystemTime, UNIX_EPOCH};
 use terminal_size::{terminal_size, Height};
 
@@ -29,6 +32,7 @@ pub struct Config {
     pub leading_zeroes_threshold: Option<u8>,
     pub total_zeroes_threshold: Option<u8>,
     pub output_file: String,
+    pub post_url: Option<String>,
 }
 
 /// Given a Config object with a factory address, a caller address, a keccak-256
@@ -305,9 +309,10 @@ pub fn gpu(config: Config) -> ocl::Result<()> {
 
             let key = leading * 20 + total;
             let reward = rewards.get(&key).unwrap_or("0");
+            let salt = hex::encode(create2_salt);
             let output = format!(
                 "0x{} ({}) => {} => {}",
-                hex::encode(create2_salt),
+                salt,
                 create1_nonce - 1,
                 address,
                 reward
@@ -322,9 +327,41 @@ pub fn gpu(config: Config) -> ocl::Result<()> {
                 .unwrap_or_else(|_| panic!("Couldn't write to `{}` file.", config.output_file));
 
             file.unlock().expect("Couldn't unlock file.");
+
+            // If the post_url is set, send a POST request to it in a seperate thread
+            if let Some(url) = config.post_url.clone() {
+                let data = PostData {
+                    salt,
+                    nonce: create1_nonce,
+                    leading,
+                    total,
+                    address: address.to_string(),
+                    reward: reward.to_string(),
+                };
+                thread::spawn(move || {
+                    let client = Client::new();
+                    match client.post(url).json(&data).send() {
+                        Ok(response) => {
+                            println!("Successfully POSTed {}: {:?}", &data.address, response)
+                        }
+                        Err(e) => eprintln!("Failed to POST result address. Error: {:?}", e),
+                    }
+                });
+            }
+
             found += 1;
         }
     }
+}
+
+#[derive(Serialize)]
+struct PostData {
+    salt: String,
+    nonce: u64,
+    address: String,
+    leading: usize,
+    total: usize,
+    reward: String,
 }
 
 #[track_caller]

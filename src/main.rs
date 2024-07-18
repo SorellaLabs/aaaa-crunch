@@ -62,6 +62,13 @@ struct Args {
         help = "The file to output efficient addresses to"
     )]
     output_file: String,
+
+    #[arg(
+        long,
+        default_value = None,
+        help = "Url to POST efficient addresses to"
+    )]
+    post_url: Option<String>,
 }
 
 impl TryInto<Config> for Args {
@@ -81,6 +88,7 @@ impl TryInto<Config> for Args {
             total_zeroes_threshold: self.total_zeros,
             max_create3_nonce: self.max_create3_nonce,
             output_file: self.output_file,
+            post_url: self.post_url,
         })
     }
 }

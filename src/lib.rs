@@ -1,6 +1,9 @@
 #![warn(unused_crate_dependencies, unreachable_pub)]
 #![deny(unused_must_use, rust_2018_idioms)]
 
+use clap as _;
+use clap_num as _;
+
 use alloy_primitives::{hex, Address, FixedBytes};
 use byteorder::{BigEndian, ByteOrder, LittleEndian};
 use console::Term;

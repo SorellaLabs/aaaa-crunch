@@ -313,12 +313,10 @@ pub fn gpu(config: Config) -> ocl::Result<()> {
             let key = leading * 20 + total;
             let reward = rewards.get(&key).unwrap_or("0");
             let salt = hex::encode(create2_salt);
+            let contract_salt_nonce = create1_nonce - 1;
             let output = format!(
                 "0x{} ({}) => {} => {}",
-                salt,
-                create1_nonce - 1,
-                address,
-                reward
+                salt, contract_salt_nonce, address, reward
             );
 
             let show = format!("{output} ({leading} / {total})");
@@ -335,7 +333,7 @@ pub fn gpu(config: Config) -> ocl::Result<()> {
             if let Some(url) = config.post_url.clone() {
                 let data = PostData {
                     salt,
-                    nonce: create1_nonce,
+                    nonce: contract_salt_nonce,
                     leading,
                     total,
                     address: address.to_string(),

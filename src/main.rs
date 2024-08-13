@@ -14,7 +14,12 @@ fn parse_worksize(s: &str) -> Result<u32, String> {
 #[derive(Parser)]
 #[command(version, about, long_about = None)]
 struct Args {
-    #[arg(short, long, help = "Address of the CREATE3 factory contract")]
+    #[arg(
+        short,
+        long,
+        help = "Address of the CREATE3 factory contract",
+        default_value = "0x000000000000b361194cfe6312ee3210d53c15aa"
+    )]
     factory: Address,
 
     #[arg(
@@ -24,7 +29,12 @@ struct Args {
     )]
     owner: Address,
 
-    #[arg(short, long, help = "Hash of the factory's deploy proxy initcode")]
+    #[arg(
+        short,
+        long,
+        help = "Hash of the factory's deploy proxy initcode",
+        default_value = "0x1decbcf04b355d500cbc3bd83c892545b4df34bd5b2c9d91b9f7f8165e2095c3"
+    )]
     initcode_hash: FixedBytes<32>,
 
     #[arg(short, long, help = "GPU Device")]

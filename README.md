@@ -2,6 +2,10 @@
 
 > A Rust program for finding salts that create gas-efficient Ethereum addresses via CREATE3.
 
+> [!INFO]
+> If you just need a vanity address and don't want to bother with installing, configuring & running
+> the miner yourself you can by an address off the shelf on [manyzeros.xyz](https://manyzeros.xyz)
+
 Unlike normal CREATE3, this miner allows you to test for multiple nonces in the "deploy proxy"
 contract (the standard contract that gets deployed with create2 that eventually deploys your contract).
 This allows the miner to approach CREATE2 in mining speeds as checking different nonces ammortizes

@@ -191,40 +191,27 @@ static inline void keccakf(ulong *a)
 #undef o
 }
 
-#define hasTotal(d) ( \
-  (!(d[0])) + (!(d[1])) + (!(d[2])) + (!(d[3])) + \
-  (!(d[4])) + (!(d[5])) + (!(d[6])) + (!(d[7])) + \
-  (!(d[8])) + (!(d[9])) + (!(d[10])) + (!(d[11])) + \
-  (!(d[12])) + (!(d[13])) + (!(d[14])) + (!(d[15])) + \
-  (!(d[16])) + (!(d[17])) + (!(d[18])) + (!(d[19])) \
->= TOTAL_ZEROES)
 
-#if LEADING_ZEROES == 8
-#define hasLeading(d) (!(((uint*)d)[0]) && !(((uint*)d)[1]))
-#elif LEADING_ZEROES == 7
-#define hasLeading(d) (!(((uint*)d)[0]) && !(((uint*)d)[1] & 0x00ffffffu))
-#elif LEADING_ZEROES == 6
-#define hasLeading(d) (!(((uint*)d)[0]) && !(((uint*)d)[1] & 0x0000ffffu))
-#elif LEADING_ZEROES == 5
-#define hasLeading(d) (!(((uint*)d)[0]) && !(((uint*)d)[1] & 0x000000ffu))
-#elif LEADING_ZEROES == 4
-#define hasLeading(d) (!(((uint*)d)[0]))
-#elif LEADING_ZEROES == 3
-#define hasLeading(d) (!(((uint*)d)[0] & 0x00ffffffu))
-#elif LEADING_ZEROES == 2
-#define hasLeading(d) (!(((uint*)d)[0] & 0x0000ffffu))
-#elif LEADING_ZEROES == 1
-#define hasLeading(d) (!(((uint*)d)[0] & 0x000000ffu))
-#else
-static inline bool hasLeading(uchar const *d)
-{
-#pragma unroll
-  for (uint i = 0; i < LEADING_ZEROES; ++i) {
-    if (d[i] != 0) return false;
-  }
-  return true;
+static inline bool hasAs(uchar const *d) {
+    #define d_words ((uint*) d)
+
+    if (d_words[0]) {
+        return (d_words[0] == 0x0a000000u) && ((d_words[1] & 0x0000f0ffu) == 0x0000a0aau);
+    }
+    if ((d_words[1] & 0x0000ffffu) == 0x0000aaaau) {
+        return true;
+    }
+    if ((d_words[1] & 0x00f0ffffu) == 0x00a0aa0au) {
+        return true;
+    }
+    if ((d_words[1] & 0x00ffffffu) == 0x00aaaa00u) {
+        return true;
+    }
+    if ((d_words[1] & 0xf0ffffffu) == 0xa0aa0a00u) {
+        return true;
+    }
+    return d_words[1] == 0xaaaa0000u;
 }
-#endif
 
 __kernel void hashMessage(
   __constant uchar const *d_message,
@@ -380,7 +367,7 @@ __kernel void hashMessage(
     keccakf(spongeBuffer);
 
     // determine if the address meets the constraints
-    if (SUCCESS_CONDITION()) {
+    if (hasAs(digest)) {
       solutions[0] = nonce.uint64_t;
       solutions[1] = (ulong) create1Nonce;
       break;

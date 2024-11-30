@@ -195,11 +195,11 @@ static inline void keccakf(ulong *a)
 static inline bool hasAs(uchar const *d) {
     #define d_words ((uint*) d)
 
-    if (d_words[9] & 0xff3f0000u != 0x802a0000u) {
+    if ((d_words[4] & 0xff3f0000u) != 0x802a0000u) {
         return false;
     }
 
-    if (d_words[0] & 0xf0ffffffu == 0xa0aa0a00u) {
+    if ((d_words[0] & 0xf0ffffffu) == 0xa0aa0a00u) {
         return true;
     }
 

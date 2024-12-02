@@ -195,16 +195,19 @@ static inline void keccakf(ulong *a)
 static inline bool hasAs(uchar const *d) {
     #define d_words ((uint*) d)
 
-    if ((d_words[4] & 0xff3f0000u) != 0x802a0000u) {
+    // Check for liquidity flags
+    if ((d_words[4] & 0x030f0000u) != 0x000a0000u) {
         return false;
     }
 
-    if ((d_words[0] & 0xf0ffffffu) == 0xa0aa0a00u) {
-        return true;
+    // Check for valid before swap & after swap
+    if (((d[19] & 0x88) == 0x08) || ((d[19] & 0x44) == 0x04)) {
+        return false;
     }
 
-    if (d_words[0] == 0xaaaa0000u) {
-        return true;
+    // Check that at least 1 swap & 1 initialize hook is set.
+    if ((!(d[19] & 0xc0)) || (!(d[18] & 0x30))) {
+        return false;
     }
 
     if ((d_words[0] == 0xaa0a0000u) && ((d_words[1] & 0x000000f0u) == 0x000000a0u)) {

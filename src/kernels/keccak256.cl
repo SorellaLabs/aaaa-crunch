@@ -210,23 +210,19 @@ static inline bool hasAs(uchar const *d) {
         return false;
     }
 
-    if ((d_words[0] == 0xaa0a0000u) && ((d_words[1] & 0x000000f0u) == 0x000000a0u)) {
+    if ((d_words[0] == 0xaa000000u) && ((d_words[1] & 0x000000f0u) == 0x000000a0u)) {
         return true;
     }
 
-    if ((d_words[0] == 0xaa000000u) && ((d_words[1] & 0x000000ffu) == 0x000000aau)) {
+    if ((d_words[0] == 0x0a000000u) && ((d_words[1] & 0x000000ffu) == 0x000000aau)) {
         return true;
     }
 
-    if ((d_words[0] == 0xaa000000u) && ((d_words[1] & 0x000000ffu) == 0x000000aau)) {
+    if ((!(d_words[0])) && ((d_words[1] & 0x0000f0ffu) == 0x0000a0aau)) {
         return true;
     }
 
-    if ((d_words[0] == 0x0a000000u) && ((d_words[1] & 0x0000f0ffu) == 0x0000a0aau)) {
-        return true;
-    }
-
-    return (!(d_words[0])) && ((d_words[1] & 0x0000ffffu) == 0x0000aaaau);
+    return (!(d_words[0])) && ((d_words[1] & 0x0000ffffu) == 0x0000aa0au);
 }
 
 __kernel void hashMessage(

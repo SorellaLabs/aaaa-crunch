@@ -210,10 +210,6 @@ static inline bool hasAs(uchar const *d) {
         return false;
     }
 
-    if ((d_words[0] == 0xaa000000u) && ((d_words[1] & 0x000000f0u) == 0x000000a0u)) {
-        return true;
-    }
-
     if ((d_words[0] == 0x0a000000u) && ((d_words[1] & 0x000000ffu) == 0x000000aau)) {
         return true;
     }

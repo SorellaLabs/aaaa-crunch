@@ -327,7 +327,8 @@ pub fn gpu(config: Config) -> ocl::Result<()> {
             writeln!(&file, "{output}")
                 .unwrap_or_else(|_| panic!("Couldn't write to `{}` file.", config.output_file));
 
-            file.unlock().expect("Couldn't unlock file.");
+            #[allow(unstable_name_collisions)]
+            std::fs::File::unlock(&file).expect("Couldn't unlock file.");
 
             // If the post_url is set, send a POST request to it in a seperate thread
             if let Some(url) = config.post_url.clone() {
